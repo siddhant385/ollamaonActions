@@ -20,16 +20,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y xrdp xfce4 xfce4-goodies
-        sudo apt-get install -y desktop-base
-        sudo apt-get install -y ubuntu-desktop
-
-    - name: Configure xrdp to use xfce4
-      run: |
         echo "xfce4-session" > ~/.xsession
-        sudo sed -i 's/\/etc\/X11\/Xsession/\/etc\/X11\/Xsession.d\/60xrdp/' /etc/xrdp/startwm.sh
-
-    - name: Start xrdp
-      run: |
         sudo systemctl enable xrdp
         sudo systemctl start xrdp
 
@@ -46,18 +37,6 @@ jobs:
 
     - name: Install Docker
       run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-          ca-certificates \
-          curl \
-          gnupg \
-          lsb-release
-        sudo mkdir -p /etc/apt/keyrings
-        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-        echo \
-          "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-          $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-        sudo apt-get update
         sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
         sudo usermod -aG docker $USER
         sudo systemctl enable docker
@@ -72,4 +51,4 @@ jobs:
       run: |
         ./bore local 3389 --to bore.pub &
         ./bore local 3000 --to bore.pub &
-        wait # Ensure the script waits for background processes to complete
+        wait
