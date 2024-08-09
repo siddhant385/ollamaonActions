@@ -20,7 +20,7 @@ This repository provides a GitHub Actions workflow that helps you easily run and
 
 ## Getting Started
 
-1. **Fork the Repository**: [Fork this repository](https://github.com/your-username/your-repo/fork) to your own GitHub account.
+1. **Fork the Repository**: [Fork this repository](https://github.com/siddhant385/ollamaonActions/fork) to your own GitHub account.
 
 2. **Check GitHub Actions**: Navigate to the "Actions" tab in your forked repository to see the workflow in action.
 
