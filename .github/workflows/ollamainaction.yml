@@ -57,10 +57,10 @@ jobs:
     - name: Install Ollama and Run Llama 3 Model
       run: |
         docker pull ollama/ollama
-        docker run -d --name ollama-server -p 3000:3000 ollama/ollama
+        docker run -d --name ollama-server -p 11434:11434 ollama/ollama
 
     - name: Start Bore for SSH and Ollama
       run: |
-        ./bore local 22 --to bore.pub --local-host 0.0.0.0 &
-        ./bore local 3000 --to bore.pub --local-host 0.0.0.0 &
+        ./bore local 22 --to bore.pub &
+        ./bore local 11434 --to bore.pub &
         wait
