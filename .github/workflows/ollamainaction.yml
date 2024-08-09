@@ -58,9 +58,11 @@ jobs:
       run: |
         docker pull ollama/ollama
         docker run -d --name ollama-server -p 11434:11434 ollama/ollama
+        docker run -d -p 3000:8080 --add-host=host.docker.internal:host-gateway -v open-webui:/app/backend/data --name open-webui --restart always ghcr.io/open-webui/open-webui:main
 
     - name: Start Bore for SSH and Ollama
       run: |
         ./bore local 22 --to bore.pub &
         ./bore local 11434 --to bore.pub &
+        ./bore local 3000 --to bore.pub &
         wait
