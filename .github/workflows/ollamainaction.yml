@@ -1,4 +1,4 @@
-name: Setup Ubuntu VM with RDP, Bore, and Ollama
+name: Setup Ubuntu VM with SSH, Bore, and Ollama
 
 on: [push]
 
@@ -16,23 +16,22 @@ jobs:
         tar -xzf bore-v0.5.1-x86_64-unknown-linux-musl.tar.gz
         chmod +x ./bore
 
-    - name: Install xrdp and xfce4
+    - name: Install SSH Server
       run: |
         sudo apt-get update
-        sudo apt-get install -y xrdp xfce4 xfce4-goodies
-        echo "xfce4-session" > ~/.xsession
-        sudo systemctl enable xrdp
-        sudo systemctl start xrdp
+        sudo apt-get install -y openssh-server
+        sudo systemctl enable ssh
+        sudo systemctl start ssh
 
-    - name: Create RDP User
+    - name: Create SSH User
       run: |
-        sudo adduser --quiet --disabled-password --shell /bin/bash --home /home/rdpuser --gecos 'RDP User' rdpuser
-        echo "rdpuser:P@ssw0rd2024" | sudo chpasswd
-        sudo usermod -aG sudo rdpuser
+        sudo adduser --quiet --disabled-password --shell /bin/bash --home /home/sshuser --gecos 'SSH User' sshuser
+        echo "sshuser:P@ssw0rd2024" | sudo chpasswd
+        sudo usermod -aG sudo sshuser
 
-    - name: Open RDP Port in Firewall
+    - name: Open SSH Port in Firewall
       run: |
-        sudo ufw allow 3389/tcp
+        sudo ufw allow 22/tcp
         sudo ufw reload
 
     - name: Install Docker and Docker Compose
@@ -60,8 +59,8 @@ jobs:
         docker pull ollama/ollama
         docker run -d --name ollama-server -p 3000:3000 ollama/ollama
 
-    - name: Start Bore for RDP and Ollama
+    - name: Start Bore for SSH and Ollama
       run: |
-        ./bore local 3389 --to bore.pub &
+        ./bore local 22 --to bore.pub &
         ./bore local 3000 --to bore.pub &
         wait
