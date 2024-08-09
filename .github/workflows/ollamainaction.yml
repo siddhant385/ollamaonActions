@@ -1,0 +1,75 @@
+name: Setup Ubuntu VM with RDP, Bore, and Ollama
+
+on: [push]
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v3
+
+    - name: Install Bore
+      run: |
+        wget https://github.com/ekzhang/bore/releases/download/v0.5.1/bore-v0.5.1-x86_64-unknown-linux-musl.tar.gz
+        tar -xzf bore-v0.5.1-x86_64-unknown-linux-musl.tar.gz
+        chmod +x ./bore
+
+    - name: Install xrdp and xfce4
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y xrdp xfce4 xfce4-goodies
+        sudo apt-get install -y desktop-base
+        sudo apt-get install -y ubuntu-desktop
+
+    - name: Configure xrdp to use xfce4
+      run: |
+        echo "xfce4-session" > ~/.xsession
+        sudo sed -i 's/\/etc\/X11\/Xsession/\/etc\/X11\/Xsession.d\/60xrdp/' /etc/xrdp/startwm.sh
+
+    - name: Start xrdp
+      run: |
+        sudo systemctl enable xrdp
+        sudo systemctl start xrdp
+
+    - name: Create RDP User
+      run: |
+        sudo adduser --quiet --disabled-password --shell /bin/bash --home /home/rdpuser --gecos 'RDP User' rdpuser
+        echo "rdpuser:P@ssw0rd2024" | sudo chpasswd
+        sudo usermod -aG sudo rdpuser
+
+    - name: Open RDP Port in Firewall
+      run: |
+        sudo ufw allow 3389/tcp
+        sudo ufw reload
+
+    - name: Install Docker
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          ca-certificates \
+          curl \
+          gnupg \
+          lsb-release
+        sudo mkdir -p /etc/apt/keyrings
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+        echo \
+          "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+          $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+        sudo apt-get update
+        sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+        sudo usermod -aG docker $USER
+        sudo systemctl enable docker
+        sudo systemctl start docker
+
+    - name: Install Ollama and Run Llama 3 Model
+      run: |
+        docker pull ollama/ollama
+        docker run -d --name ollama-server -p 3000:3000 ollama/ollama
+
+    - name: Start Bore for RDP and Ollama
+      run: |
+        ./bore local 3389 --to bore.pub &
+        ./bore local 3000 --to bore.pub &
+        wait # Ensure the script waits for background processes to complete
