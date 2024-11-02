@@ -66,3 +66,5 @@ jobs:
         ./bore local 11434 --to bore.pub &
         ./bore local 3000 --to bore.pub &
         wait
+
+
