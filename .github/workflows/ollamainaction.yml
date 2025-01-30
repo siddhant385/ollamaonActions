@@ -54,7 +54,7 @@ jobs:
         sudo chmod +x /usr/local/bin/docker-compose
         sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
 
-    - name: Install Ollama and Run Llama 3 Model
+    - name: Install Ollama and Run DeepseekR-1 Model
       run: |
         docker pull ollama/ollama
         docker run -d --name ollama-server -p 11434:11434 ollama/ollama
